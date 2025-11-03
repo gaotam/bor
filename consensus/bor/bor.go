@@ -1124,7 +1124,7 @@ func (c *Bor) changeContractCodeIfNeeded(headerNumber uint64, state vm.StateDB) 
 // nor block rewards given, and returns the final block.
 func (c *Bor) FinalizeAndAssemble(chain consensus.ChainHeaderReader, header *types.Header, state *state.StateDB, body *types.Body, receipts []*types.Receipt) (*types.Block, error) {
 	headerNumber := header.Number.Uint64()
-	if len(body.Withdrawals) > 0 || header.WithdrawalsHash != nil {
+	if len(body.Withdrawals) > 0 || *header.WithdrawalsHash != types.EmptyWithdrawalsHash {
 		return nil, consensus.ErrUnexpectedWithdrawals
 	}
 	if header.RequestsHash != nil {
