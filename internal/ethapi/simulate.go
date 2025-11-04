@@ -352,7 +352,7 @@ func (sim *simulator) processBlock(ctx context.Context, block *simBlock, header,
 		reqHash := types.CalcRequestsHash(requests)
 		header.RequestsHash = &reqHash
 	}
-	blockBody := &types.Body{Transactions: txes, Withdrawals: *block.BlockOverrides.Withdrawals}
+	blockBody := &types.Body{Transactions: txes}
 	chainHeadReader := &simChainHeadReader{ctx, sim.b}
 	b, err := sim.b.Engine().FinalizeAndAssemble(chainHeadReader, header, sim.state, blockBody, receipts)
 	if err != nil {
@@ -480,10 +480,11 @@ func (sim *simulator) makeHeaders(blocks []simBlock) ([]*types.Header, error) {
 		}
 		overrides := block.BlockOverrides
 
-		var withdrawalsHash *common.Hash
-		if sim.chainConfig.IsShanghai(overrides.Number.ToInt()) {
-			withdrawalsHash = &types.EmptyWithdrawalsHash
-		}
+		// fix unexpected withdrawals
+		//var withdrawalsHash *common.Hash
+		//if sim.chainConfig.IsShanghai(overrides.Number.ToInt()) {
+		//	withdrawalsHash = &types.EmptyWithdrawalsHash
+		//}
 		var parentBeaconRoot *common.Hash
 		if sim.chainConfig.IsCancun(overrides.Number.ToInt()) {
 			parentBeaconRoot = &common.Hash{}
@@ -498,7 +499,7 @@ func (sim *simulator) makeHeaders(blocks []simBlock) ([]*types.Header, error) {
 			Coinbase:         header.Coinbase,
 			Difficulty:       header.Difficulty,
 			GasLimit:         header.GasLimit,
-			WithdrawalsHash:  withdrawalsHash,
+			WithdrawalsHash:  nil,
 			ParentBeaconRoot: parentBeaconRoot,
 		})
 		res[bi] = header
